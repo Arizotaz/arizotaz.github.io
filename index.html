@@ -2,6 +2,7 @@
 
 <head>
     <title>Lumonality Login Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://lumonality.com/assets/js/jquery.min.js"></script>
     <style>
         html,
@@ -53,11 +54,11 @@
         }
 
         #loginButton button {
-            border:none;
+            border: none;
             font-size: 18px;
-            width:250px;
-            padding:10px;
-            cursor:pointer;
+            width: 250px;
+            padding: 10px;
+            cursor: pointer;
         }
 
         #loggingIn {
@@ -113,7 +114,7 @@
             document.getElementById("displayname").innerHTML = accountData.displayname;
             document.getElementById("username").innerHTML = accountData.username;
 
-            document.getElementById("JSONDAT").innerHTML = JSON.stringify(accountData).replaceAll(",",",<br>");
+            document.getElementById("JSONDAT").innerHTML = JSON.stringify(accountData).replaceAll(",", ",<br>");
 
         }
 

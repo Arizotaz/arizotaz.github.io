@@ -1,0 +1,203 @@
+<html>
+
+<head>
+    <title>Lumonality Login Demo</title>
+    <script src="https://lumonality.com/assets/js/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="loginButton">
+        <button onclick="StartLogin()">Login</button>
+    </div>
+    <div id="loggingIn">
+
+    </div>
+    <div id="loginDone">
+
+    </div>
+    <script>
+        function StartLogin() {
+            document.getElementById("loginButton").style.display = "none";
+            document.getElementById("loggingIn").style.display = "block";
+            CreateReference();
+        }
+        
+        function LoginDone() {
+            document.getElementById("loggingIn").style.display = "none";
+            document.getElementById("loginDone").style.display = "block";
+            document.getElementById("loginDone").innerHTML = JSON.stringify(accountData);
+
+        }
+
+
+        function LogToStatus(message) {
+            document.getElementById("loggingIn").innerHTML = JSON.stringify(accountData);
+        }
+
+
+        const appID = "0GgwNZgZ7UxG";
+        const appKey = "mLy1p6Z9PAMGBqvjW7UPl6xV95hGOU1LWp5kmzd54oejaIDuDBTCpX18EhpoKLWo4GWLbWkM9kiZu3FQDV8s88O5rqyPAIwvxqWkaHjlsvfflY2ZjFmG2e8jUYrD5B";
+
+
+        var applicationReference = "";
+
+        var loginID = "";
+
+        var sessionID = "";
+        var sessionKey = "";
+        var sessionPublicKey = "";//Optional
+        var endTime = 0;//Options, shows when session ends
+
+        var accountData;
+
+        function CreateReference() {
+            LogToStatus("Creating Application Reference");
+
+            var fd = new FormData();
+            fd.append('id', appID);
+            fd.append('key', appKey);
+
+            $.ajax({
+                type: "POST",
+                url: "https://lumonality.com/nautilus/trident/application/reference/",
+                async: true,
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (text) {
+                    if (text.startsWith("{")) {
+                        dat = JSON.parse(text);
+                        applicationReference = dat.id;
+                        CreateSession();
+                    } else {
+                        LogToStatus("Failed to create reference " + text);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Failed to create reference as we could not reach the host");
+                }
+            });
+        }
+        function CreateSession() {
+            LogToStatus("Creating Session");
+
+            var fd = new FormData();
+            fd.append('action', "start");
+            fd.append('applicationReference', applicationReference);
+
+            $.ajax({
+                type: "POST",
+                url: "https://lumonality.com/nautilus/trident/application/reference/",
+                async: true,
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (text) {
+                    if (text.startsWith("{")) {
+                        dat = JSON.parse(text);
+
+                        loginID = dat.loginID;
+                        OpenLogin(loginID);
+
+                        StartCheckLoop();
+                    } else {
+                        LogToStatus("Failed to create session " + text);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Failed to create session as we could not reach the host");
+                }
+            });
+        }
+        function OpenLogin(id) {
+            window.open("https://lumonality.com/nautilus/trident/login/?l=".$loginID);
+        }
+
+        var checkTimeout;
+        function StartCheckLoop() {
+            LogToStatus("Creating Login Loop");
+
+            clearTimeout(checkTimeout);
+            checkTimeout = setTimeout(CheckLoginStatus, 1000);
+        }
+
+        function CheckLoginStatus() {
+            var fd = new FormData();
+            fd.append('action', "check");
+            fd.append('applicationReference', applicationReference);
+            fd.append('loginID', loginID);
+
+
+            $.ajax({
+                type: "POST",
+                url: "https://lumonality.com/nautilus/trident/application/reference/",
+                async: true,
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (text) {
+                    if (text.startsWith("{")) {
+                        dat = JSON.parse(text);
+                        sessionID = dat.sessionID;
+                        sessionKey = dat.sessionKey
+                        sessionPublicKey = dat.sessionPublicKey;
+                        endTime = dat.endTime;
+                        
+                        GetAccountInfo();
+
+                    } else {
+                        LogToStatus(text);
+
+                        clearTimeout(checkTimeout);
+                        checkTimeout = setTimeout(CheckLoginStatus, 1000);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Failed to check login as we could not reach the host");
+                }
+            });
+        }
+
+
+        function GetAccountInfo() {
+            LogToStatus("Gathering UserData");
+
+            var fd = new FormData();
+            fd.append('action', "info");
+            fd.append('applicationReference', applicationReference);
+            fd.append('sessionID', sessionID);
+            fd.append('sessionKey', sessionKey);
+
+
+            $.ajax({
+                type: "POST",
+                url: "https://lumonality.com/nautilus/trident/application/reference/",
+                async: true,
+                data: fd,
+                contentType: false,
+                processData: false,
+                success: function (text) {
+                    if (text.startsWith("{")) {
+                        accountData = JSON.parse(text);
+                        console.log(accountData);
+                        LoginDone();
+
+                    } else {
+                        LogToStatus(text);
+
+                        clearTimeout(checkTimeout);
+                        checkTimeout = setTimeout(CheckLoginStatus, 1000);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Failed to create reference as we could not reach the host");
+                }
+            });
+        }
+
+
+    </script>
+
+</body>
+
+</html>

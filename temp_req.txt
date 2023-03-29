@@ -1,1 +1,0 @@
-{libraries:["url"],assets:[""],game:[""]}

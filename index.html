@@ -3,35 +3,123 @@
 <head>
     <title>Lumonality Login Demo</title>
     <script src="https://lumonality.com/assets/js/jquery.min.js"></script>
+    <style>
+        html,
+        body {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        body {
+            background-position: center;
+            background-size: cover;
+            background-color: rgb(0, 0, 0);
+            background-image: url("https://lumonality.com/assets/shared/banner");
+        }
+
+        .pageContainer {
+            backdrop-filter: blur(5px);
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            max-width: 400px;
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        #profileImage {
+            width: 300px;
+            height: 300px;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 1);
+            background-position: center;
+            background-size: cover;
+        }
+
+        #loginButton {
+            display: block;
+        }
+
+        #loginButton button {
+            border:none;
+            font-size: 18px;
+            width:250px;
+            padding:10px;
+            cursor:pointer;
+        }
+
+        #loggingIn {
+            display: none;
+        }
+
+        #loginDone {
+            display: none;
+        }
+
+        #loginDone h2 {
+            margin-bottom: 5px;
+        }
+
+        #loginDone p {
+            margin-top: 5px;
+            max-width: 300px;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="loginButton">
-        <button onclick="StartLogin()">Login</button>
-    </div>
-    <div id="loggingIn">
+    <div class="pageContainer">
+        <div class="content">
+            <div id="loginButton">
+                <button onclick="StartLogin()">Login</button>
+            </div>
+            <div id="loggingIn">
 
+            </div>
+            <div id="loginDone">
+                <div id=profileImage></div>
+                <h2 id=displayname>Display Name</h2>
+                <p id=username>Display Name</p>
+                <p id=JSONDAT style="text-align: left;font-size: 14px;"></p>
+            </div>
+        </div>
     </div>
-    <div id="loginDone">
 
-    </div>
+
     <script>
         function StartLogin() {
             document.getElementById("loginButton").style.display = "none";
             document.getElementById("loggingIn").style.display = "block";
             CreateReference();
         }
-        
+
         function LoginDone() {
             document.getElementById("loggingIn").style.display = "none";
             document.getElementById("loginDone").style.display = "block";
-            document.getElementById("loginDone").innerHTML = JSON.stringify(accountData);
+            document.getElementById("profileImage").style.backgroundImage = "url('https://lumonality.com/account/profile/?account=" + accountData.accountID + "')";
+            document.body.style.backgroundImage = "url('https://lumonality.com/account/banner/?account=" + accountData.accountID + "')";
+            document.getElementById("displayname").innerHTML = accountData.displayname;
+            document.getElementById("username").innerHTML = accountData.username;
+
+            document.getElementById("JSONDAT").innerHTML = JSON.stringify(accountData).replaceAll(",",",<br>");
 
         }
 
 
         function LogToStatus(message) {
-            document.getElementById("loggingIn").innerHTML = JSON.stringify(accountData);
+            document.getElementById("loggingIn").innerHTML = message;
         }
 
 
@@ -48,7 +136,11 @@
         var sessionPublicKey = "";//Optional
         var endTime = 0;//Options, shows when session ends
 
-        var accountData;
+        var accountData = { "displayname": "Arizotaz", "accountID": "TIhIc7-4Ndw-J2WTfP0KSq", "username": "arizotaz", "email": "TIhIc7-4Ndw-J2WTfP0KSq@account.lumonality.com", "dev": "1", "domain": "" };
+
+        //DEBUG
+        //document.getElementById("loginButton").style.display = "none";
+        //LoginDone();
 
         function CreateReference() {
             LogToStatus("Creating Application Reference");
@@ -87,7 +179,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "https://lumonality.com/nautilus/trident/application/reference/",
+                url: "https://lumonality.com/nautilus/trident/",
                 async: true,
                 data: fd,
                 contentType: false,
@@ -110,7 +202,7 @@
             });
         }
         function OpenLogin(id) {
-            window.open("https://lumonality.com/nautilus/trident/login/?l=".$loginID);
+            window.open("https://lumonality.com/nautilus/trident/login/?l=" + id);
         }
 
         var checkTimeout;
@@ -130,7 +222,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "https://lumonality.com/nautilus/trident/application/reference/",
+                url: "https://lumonality.com/nautilus/trident/",
                 async: true,
                 data: fd,
                 contentType: false,
@@ -142,7 +234,7 @@
                         sessionKey = dat.sessionKey
                         sessionPublicKey = dat.sessionPublicKey;
                         endTime = dat.endTime;
-                        
+
                         GetAccountInfo();
 
                     } else {
@@ -171,7 +263,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "https://lumonality.com/nautilus/trident/application/reference/",
+                url: "https://lumonality.com/nautilus/trident/",
                 async: true,
                 data: fd,
                 contentType: false,
